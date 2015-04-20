@@ -1,0 +1,122 @@
+<html>
+  <head>
+    <title>Hello React</title>
+<style type="text/css">
+<!--
+div.hotel {
+	border-style: solid;
+}
+div.hotelReview {
+	background-color: #99cc00;
+}
+//-->
+</style>
+    <script src="https://fb.me/react-0.13.0.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.0.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
+  </head>
+  <body>
+    Cool header
+<div>
+<select id="count">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="10">10</option>
+<option value="30">30</option>
+</select>
+<select id="tiku_shou">
+<option value="tazawa">tazawa</option>
+<option value="akita">akita</option>
+</select>
+</div>
+    <div id="content"></div>
+    <script type="text/jsx">
+      var HotelResult = React.createClass({
+        loadHotelsFromServer: function() {
+            $.ajax({
+                url: this.props.url + "&smallClassCode=" + $('#tiku_shou').val() + "&hits=" + $('#count').val(),
+                dataType: 'json',
+                success: function(data) {
+                	//console.log(data.hotels)
+                    this.setState({data: data.hotels});
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    console.error(this.props.url, status, err.toString());
+                }.bind(this)
+            });
+        },
+        getInitialState: function() {
+            return {data: []};
+        },
+        componentDidMount: function() {
+    		this.loadHotelsFromServer();
+    		setInterval(this.loadHotelsFromServer, this.props.pollInterval);
+        },
+        render: function() {
+            return (
+                <div className="HotelResult">
+                    <HotelList data={this.state.data} />
+                </div>
+            );
+        }
+      });
+      
+      var HotelList = React.createClass({
+        render: function() {
+        	hotel = this.props.data[0]
+        	//console.log(hotel)
+            var hotelNodes = this.props.data.map(function (hotel) {
+            	//console.log(hotel[0].hotelBasicInfo.hotelName)
+                return (
+                    <Hotel 
+                    	name={hotel[0].hotelBasicInfo.hotelName} 
+                    	imgUrl={hotel[0].hotelBasicInfo.hotelImageUrl}
+                    	hotelReview={hotel[0].hotelBasicInfo.userReview}
+                    />
+                );
+            });
+            return (
+                <div className="hotelList">
+                    {hotelNodes}
+                </div>
+            );
+        }
+      });
+
+      var converter = new Showdown.converter();
+      function createMarkup(html) {
+      	if (html != null) {
+      		console.log(html);
+      		return {__html: html};
+      	}
+      	return {__html: 'null'};
+      };
+      var Hotel = React.createClass({
+        render: function() {
+        	//console.log(this.props)
+            return (
+                <div className="hotel">
+                    <h2 className="hotelName">
+                        {this.props.name}
+                    </h2>
+                    <img className="image" src={this.props.imgUrl} width="80" height="80"/>
+                    <div className="hotelReview">
+                    <img src="review.png" /><span dangerouslySetInnerHTML={createMarkup(this.props.hotelReview)} />
+                    </div>
+                    <img src="book.png" />
+                </div>
+            );
+        }
+      });
+      
+      React.render(
+        <HotelResult url="https://app.rakuten.co.jp/services/api/Travel/SimpleHotelSearch/20131024?applicationId=d7b69d10fdb54f317ab969f5339956b8&format=json&largeClassCode=japan&middleClassCode=akita&responseType=small&formatVersion=2" pollInterval={2000} />,
+        document.getElementById('content')
+      );
+    </script>
+    </div>
+    <div>cool footter</div>
+  </body>
+</html>

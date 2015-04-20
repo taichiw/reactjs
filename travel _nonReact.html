@@ -1,0 +1,59 @@
+<html>
+  <head>
+    <title>Hello Non React</title>
+<style type="text/css">
+<!--
+div.hotel {
+	border-style: solid;
+}
+div.hotelReview {
+	background-color: #99cc00;
+}
+//-->
+</style>
+    <script src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script type="text/javascript">
+		orgUrl = "https://app.rakuten.co.jp/services/api/Travel/SimpleHotelSearch/20131024?applicationId=d7b69d10fdb54f317ab969f5339956b8&format=json&largeClassCode=japan&middleClassCode=akita&responseType=small&formatVersion=2";
+		function rendHotel() {
+			$.ajax({
+				url: orgUrl + "&smallClassCode=" + $('#tiku_shou').val() + "&hits=" + $('#count').val(),
+                dataType: 'json',
+                success: function(data) {
+                	$("#content").empty();
+                	//console.log(data.hotels);
+                	var hotelsExtend = [];
+                	//for (var i=0; i<10; i++) {
+	                	Array.prototype.push.apply(hotelsExtend, data.hotels);
+	                //}
+                	$.each(hotelsExtend, function(i, hotel) {
+                		var hotelBasicInfo = hotel[0].hotelBasicInfo;
+                		//console.log(hotelBasicInfo);
+                		var htmlStr = "";
+                		htmlStr += '<div class="hotel"><h2>' + hotelBasicInfo.hotelName + '</h2>';
+                		htmlStr += '<img width="80" height="80" src="' + hotelBasicInfo.hotelImageUrl + '"/>';
+                		htmlStr += '<div class="hotelReview"><img src="review.png" />' + hotelBasicInfo.userReview  + '</div>'
+                		htmlStr += '<img src="book.png" /></div>';
+                		$("#content").append(htmlStr);
+                	});
+                }
+            });
+        }
+</script>
+  </head>
+  <body>
+    <div>Cool header</div>
+<select onChange="rendHotel()" id="count">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="10">10</option>
+<option value="30">30</option>
+</select>
+<select onChange="rendHotel()" id="tiku_shou">
+<option value="tazawa">tazawa</option>
+<option value="akita">akita</option>
+</select>
+    <div id="content"></div>
+    <div>cool footter</div>
+  </body>
+</html>
